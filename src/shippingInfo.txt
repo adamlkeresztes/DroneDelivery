@@ -1,0 +1,6 @@
+Line #1: [test], [15.00], [test2], [20.00], [test3], [25.00]
+Line #2: [local], [7.00]
+Line #3: [local2], [8.00]
+Line #4: [local3], [18.00]
+Line #5: [local4], [22.00]
+Line #6: [local5], [25.00]
