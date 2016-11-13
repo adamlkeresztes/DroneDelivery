@@ -13,6 +13,7 @@ public class ShipmentSchedule {
     List<Drone> masterDroneList = new ArrayList<>();
     List<Destination> masterDestinationList = new ArrayList<>();
     List<Trip> masterTripList = new ArrayList<>();
+    List<Destination> undeliverablePackageList = new ArrayList<>();
 
 
     public void run() throws IOException {
@@ -33,6 +34,7 @@ public class ShipmentSchedule {
                         trip.setFull(true);
                     }
                     addedToTrip = true;
+                    break;
                 }
             }
 
@@ -48,8 +50,14 @@ public class ShipmentSchedule {
                             trip.setFull(true);
                         }
                         masterTripList.add(trip);
+                        addedToTrip = true;
                         break;
                     }
+                }
+
+                //no drone can deliver the package
+                if (!addedToTrip) {
+                    undeliverablePackageList.add(destination);
                 }
             }
         }
@@ -81,8 +89,8 @@ public class ShipmentSchedule {
 
             String[] droneArray = line.split(",");
 
-            if (droneArray.length < 1) {
-                System.out.println("There are no drones specified in the input file. No deliveries can be made.");
+            if (droneArray.length < 2) {
+                System.out.println("There are missing details for the drones specified in the input file. No deliveries can be made.");
                 return false;
             }
 
@@ -100,7 +108,10 @@ public class ShipmentSchedule {
             while (in.hasNext()) {
                 line = removeLinePrefix(in.nextLine());
                 String[] destinationArray = line.split(",");
-                // Check if there are only 2 items in list
+                if (destinationArray.length != 2) {
+                    System.out.println("The destination is formatted incorrectly for line: " + line);
+                    return false;
+                }
                 Destination destination = new Destination();
                 destination.setLocationName(removeBrackets(destinationArray[0]));
                 destination.setPackageWeight(Double.valueOf(removeBrackets(destinationArray[1])));
@@ -108,12 +119,11 @@ public class ShipmentSchedule {
             }
 
         } catch (Exception e){
-            //print error and where it occurred
-            System.out.println(e);
-        } finally {
-            in.close();
-            return true;
+            System.out.println("There was an exception caught while reading the file: " + e);
+            return false;
         }
+
+        return true;
     }
 
     /**
@@ -156,7 +166,7 @@ public class ShipmentSchedule {
     public void printList() {
         sortMasterTripList();
 
-        int droneId = -1;
+        int droneId = -1; // This ensures that the drone with ID=0 is correctly printed
         int tripId = 1;
         for (Trip trip : masterTripList) {
             Drone drone = trip.getDrone();
@@ -176,9 +186,18 @@ public class ShipmentSchedule {
             }
            String locationsToPrint = locations.substring(2, locations.length());
 
-            System.out.println(locationsToPrint);
+           System.out.println(locationsToPrint);
 
 
+        }
+
+        //Printing packages that cannot be delivered
+        if (!undeliverablePackageList.isEmpty()) {
+            System.out.println("");
+            System.out.println("The following packages could not be delivered due to weight exceeding drone capacity:");
+            for (Destination destination : undeliverablePackageList) {
+                System.out.println("[" + destination.getLocationName() + "], [" + destination.getPackageWeight() + "]");
+            }
         }
     }
 

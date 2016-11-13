@@ -7,6 +7,7 @@ import java.util.List;
  */
 public class Trip {
 
+    private int tripID;
     private Drone drone;
     private double weightRemaining; // Assumed to be in kilograms
     private boolean isFull = false; // If there is no room left on this trip
@@ -15,6 +16,14 @@ public class Trip {
     public Trip (Drone drone) {
         this.drone = drone;
         this.setWeightRemaining(drone.getMaxWeight());
+    }
+
+    public int getTripID() {
+        return tripID;
+    }
+
+    public void setTripID(int tripID) {
+        this.tripID = tripID;
     }
 
     public Drone getDrone() {
