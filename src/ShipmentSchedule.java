@@ -17,7 +17,7 @@ public class ShipmentSchedule {
 
 
     public void run() throws IOException {
-        readFile("shippingInfo.txt");
+        readFile("shippingInfo2.txt");
 
         for (Destination destination : masterDestinationList) {
             boolean addedToTrip = false;
@@ -79,11 +79,15 @@ public class ShipmentSchedule {
 
         try {
 
-            String line = removeLinePrefix(in.nextLine());
+            String line = in.nextLine();
 
             if (line == null) {
                 System.out.println("The input file isn't formatted correctly. Each line must start with 'Line #x:'");
                 return false;
+            }
+
+            if (line.startsWith("Line")) {
+                line = removeLinePrefix(line);
             }
 
 
@@ -98,23 +102,42 @@ public class ShipmentSchedule {
             for (int i=0; i<droneArray.length; i++) {
                 Drone drone = new Drone();
                 drone.setDroneId(idCount);
-                drone.setDroneName(removeBrackets(droneArray[i]).trim());
+                String droneName = droneArray[i].trim();
+                if (droneName.startsWith("[")) {
+                    droneName = removeBrackets(droneName);
+                }
+                drone.setDroneName(droneName.trim());
                 i++;
-                drone.setMaxWeight(Double.parseDouble(removeBrackets(droneArray[i])));
+                String maxWeight = droneArray[i].trim();
+                if (maxWeight.startsWith("[")) {
+                    maxWeight = removeBrackets(maxWeight);
+                }
+                drone.setMaxWeight(Double.parseDouble(maxWeight.trim()));
                 masterDroneList.add(drone);
                 idCount ++;
             }
 
             while (in.hasNext()) {
-                line = removeLinePrefix(in.nextLine());
+                line = in.nextLine();
+                if (line.startsWith("Line")) {
+                    line = removeLinePrefix(line);
+                }
                 String[] destinationArray = line.split(",");
                 if (destinationArray.length != 2) {
                     System.out.println("The destination is formatted incorrectly for line: " + line);
-                    return false;
+                    continue;
                 }
                 Destination destination = new Destination();
-                destination.setLocationName(removeBrackets(destinationArray[0]));
-                destination.setPackageWeight(Double.valueOf(removeBrackets(destinationArray[1])));
+                String locationName = destinationArray[0].trim();
+                if (locationName.startsWith("[")) {
+                    locationName = removeBrackets(locationName);
+                }
+                destination.setLocationName(locationName.trim());
+                String packageWeight = destinationArray[1].trim();
+                if (packageWeight.startsWith("[")) {
+                    packageWeight = removeBrackets(packageWeight);
+                }
+                destination.setPackageWeight(Double.valueOf(packageWeight.trim()));
                 masterDestinationList.add(destination);
             }
 
